@@ -81,14 +81,47 @@ svg.selectAll("text")
     .text(d => d.properties.NAME)
     .attr("font-size", "8px");
 
+//Adding legend to the heat map
+// Create a legend
+const legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", "translate(700,400)"); // Adjust position of the legend
+
+const legendWidth = 150;
+const legendHeight = 20;
+const numColorBands = 10;
+
+const legendScale = d3.scaleLinear()
+    .domain([20, 100]) // Use the same domain as your color scale
+    .range([0, legendWidth]);
+
+const legendAxis = d3.axisBottom(legendScale)
+    .tickValues(d3.range(20, 101, 10)) // Adjust tick values as needed
+    .tickSize(legendHeight);
+
+legend.append("g")
+    .attr("class", "legend-axis")
+    .attr("transform", "translate(0," + legendHeight + ")")
+    .call(legendAxis);
+
+legend.selectAll(".legend-rect")
+    .data(d3.range(20, 101, (100 - 20) / numColorBands)) // Create color bands
+    .enter().append("rect")
+    .attr("class", "legend-rect")
+    .attr("x", d => legendScale(d))
+    .attr("y", 0)
+    .attr("width", legendWidth / numColorBands)
+    .attr("height", legendHeight)
+    .attr("fill", d => colorScale(d));
+
+//Adding onclick functionality
 const data= statesJson.features;
 svg.selectAll('path')
     .on("click", function(d) {
     console.log(d);
                 });
 
-
-
+//Rank table 
 // Sort the states by median AQI in ascending order
 const sortedStates = statesJson.features.slice().sort((a, b) => {
     const aMedianAQI = a.properties.medianAQI || 0;
@@ -132,6 +165,7 @@ rows.each(function (state, index) {
     row.append("td").text(medianAQI);
 });
 
+//Scatter plot Code
 // Mapping state names to population density
 const statePopulationMap = new Map(populationData.map(d => [d.State.toUpperCase().trim(), +d.Population_density]));
 
@@ -175,20 +209,24 @@ svg1.selectAll("circle")
     .attr("fill", "steelblue")
     .attr("opacity", 0.7)
     .on("mouseover", function(event, d) {
-        const tooltipText = `<strong>State:</strong> ${d[0]}`;
+        const stateName = d[0];
+        const tooltipText = `<strong>State:</strong> ${stateName}`;
+        
         tooltip.transition()
-          .duration(200)
-          .style("opacity", .9);
+            .duration(200)
+            .style("opacity", .9);
+        
         tooltip.select(".tooltiptext")
-          .html(tooltipText)
-          .style("left", (event.pageX + 10) + "px")
-          .style("top", (event.pageY - 28) + "px");
-      })
-      .on("mouseout", function() {
+            .html(tooltipText)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseout", function() {
         tooltip.transition()
-          .duration(500)
-          .style("opacity", 0);
-      });
+            .duration(500)
+            .style("opacity", 0);
+    });
+
 
 // Create x-axis
 const xAxis = d3.axisBottom(xScale).ticks(5);
@@ -221,7 +259,7 @@ svg1.append("text")
 
 // Set SVG dimensions & margins
 const svgWidth = 1200;
-const svgHeight = 800;
+const svgHeight = 1000;
 const margin = {top: 20, right: 20, bottom: 40, left: 100}; 
 
 // Create SVG  
@@ -339,7 +377,7 @@ Object.entries(metricColors).forEach(([metric, color]) => {
 });
 
 // Pie chart data
-let pieMetrics = ["DaysCO", "DaysNO2", "DaysOzone", "DaysPM2.5", "DaysPM10"];  
+let pieMetrics = ["Days CO", "Days NO2", "Days Ozone", "Days PM2.5", "Days PM10"];  
 
 let pieData = pieMetrics.map(m => ({
     metric: m,
@@ -350,24 +388,66 @@ let pieData = pieMetrics.map(m => ({
 let radius = 100;
 let pie = d3.pie()
     .value(d => d.value);
-    
+// Define colors
+let colors = d3.scaleOrdinal()
+    .domain(pieMetrics)
+    .range(d3.schemeCategory10); // You can change the color scheme as needed
+let colors1 = ["steelblue", "orange", "green", "red", "purple", "yellow","black"];
 let arc = d3.arc()
     .innerRadius(0)
     .outerRadius(radius);
 
-let pieGroup = svg2.append("g")
-    .attr("transform", "translate(200, 170)"); 
-    
+    let pieGroup = svg2.append("g")
+    .attr("transform", "translate(550, 130)");
+
 let arcs = pieGroup.selectAll("arc")
-    .data(pie(pieData)) 
+    .data(pie(pieData))
     .enter()
     .append("g");
-    
-arcs.append("path")
-    .attr("d", arc) 
-    .style("fill", (d, i) => colors[i]); 
 
-// Add labels, title, legend
+arcs.append("path")
+    .attr("d", arc)
+    .style("fill", (d, i) => colors(d.data.metric)); // Use the color scale for each metric
+
+
+// Add labels
+arcs.append("text")
+    .attr("transform", d => `translate(${arc.centroid(d)})`)
+    .attr("dy", "0.35em")
+    .text(d => d.data.metric)
+    .style("text-anchor", "middle");
+
+// Add title
+svg2.append("text")
+    .attr("x", 550)
+    .attr("y", 20)
+    .text("Days by Pollutant")
+    .style("font-size", "16px")
+    .style("text-anchor", "middle")
+    .style("font-weight", "bold");
+
+// Create legend
+let legend1 = svg2.append("g")
+    .attr("transform", "translate(690, 80)")
+    .selectAll(".legend")
+    .data(pieData)
+    .enter().append("g")
+    .attr("class", "legend")
+    .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+
+legend1.append("rect")
+    .attr("x", 0)
+    .attr("width", 10)
+    .attr("height", 10)
+    .style("fill", (d, i) => colors1[i]);
+
+legend1.append("text")
+    .attr("x", 20)
+    .attr("y", 5)
+    .text(d => d.metric)
+    .style("font-size", "12px")
+    .attr("alignment-baseline", "middle");
+
 
     })
 });
