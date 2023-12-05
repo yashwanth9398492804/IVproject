@@ -199,6 +199,25 @@ const yScale = d3.scaleLinear()
 
 console.log(filteredStateMedians)
 
+
+// Calculate total height needed based on the number of lines to display
+const numLines = 3; // Adjust as per your content
+const lineHeight = 20; // Adjust line height as needed
+const totalHeight = numLines * lineHeight;
+
+// Creating a textarea with adjusted height
+const textarea = svg1.append("foreignObject")
+    .attr("x", scatterMargin.left + scatterWidth + 10) // Adjust positioning as needed
+    .attr("y", scatterMargin.top)
+    .attr("width", 200)
+    .attr("height", totalHeight) // Set the total height
+    .append("xhtml:textarea")
+    .attr("class", "state-textarea")
+    .style("font-size", "10px")
+    .style("padding", "25px")
+    .attr("readonly", true); // Make it read-only initially
+
+// Adding circles to the scatterplot
 svg1.selectAll("circle")
     .data(filteredStateMedians)
     .enter()
@@ -208,25 +227,13 @@ svg1.selectAll("circle")
     .attr("r", 5)
     .attr("fill", "steelblue")
     .attr("opacity", 0.7)
-    .on("mouseover", function(event, d) {
+    .on("click", function(event, d) {
         const stateName = d[0];
-        const tooltipText = `<strong>State:</strong> ${stateName}`;
+        const medianAQI = d[1];
+        const populationDensity = statePopulationMap.get(d[0]);
         
-        tooltip.transition()
-            .duration(200)
-            .style("opacity", .9);
-        
-        tooltip.select(".tooltiptext")
-            .html(tooltipText)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 28) + "px");
-    })
-    .on("mouseout", function() {
-        tooltip.transition()
-            .duration(500)
-            .style("opacity", 0);
+        textarea.node().value = `State: ${stateName}\nMedian AQI: ${medianAQI}\nPopulation Density: ${populationDensity}`;
     });
-
 
 // Create x-axis
 const xAxis = d3.axisBottom(xScale).ticks(5);
@@ -299,9 +306,6 @@ let yScale1 = d3.scaleLinear()
     .domain([0, maxDays]) 
     .range([svgHeight - margin.bottom, margin.top]);
 
- 
-// Draw bars
-// Draw bars 
 // Draw bars
 svg2.selectAll("g")
   .data(alaData)
@@ -344,7 +348,6 @@ const metricColors = {
   "Unhealthy Days":"purple",
   "Very Unhealthy Days": "yellow", 
   "Hazardous Days":"black"
-  // ... add other metrics and their colors
 };
 
 // Create legend
