@@ -114,11 +114,15 @@ legend.selectAll(".legend-rect")
     .attr("height", legendHeight)
     .attr("fill", d => colorScale(d));
 
+
 //Adding onclick functionality
-const data= statesJson.features;
+
 svg.selectAll('path')
     .on("click", function(d) {
-    console.log(d);
+    console.log(d.srcElement.__data__.properties.NAME);
+   //d3.select('#interState').remove();
+        let r=d.srcElement.__data__.properties.NAME;
+        interStateData(r);
                 });
 
 //Rank table 
@@ -146,12 +150,7 @@ const rows = table.append("tbody")
     .selectAll("tr")
     .data(sortedStates)
     .enter()
-    .append("tr")
-    .on("click",function(d){
-        console.log(d);
-        const state = d.properties.NAME;
-    console.log("Clicked state: " + state);
-    });
+    .append("tr");
 
 // Populate the table with state ranking based on median AQI
 rows.each(function (state, index) {
@@ -177,16 +176,6 @@ console.log(filteredPopulationData);
 const scatterMargin = { top: 20, right: 30, bottom: 80, left: 120 };
 const scatterWidth = width - scatterMargin.left - scatterMargin.right;
 const scatterHeight = height - scatterMargin.top - scatterMargin.bottom;
-
-// Define Tooltip
-const tooltip = d3.select("#scatterplot")
-  .append("div")
-  .attr("class", "tooltip")
-  .style("opacity", 0);
-
-// Add tooltip text to the tooltip div
-tooltip.append("span")
-  .attr("class", "tooltiptext");
 
 // Creating scatter plot
 const xScale = d3.scaleLinear()
@@ -261,7 +250,6 @@ svg1.append("text")
     .attr("dy", "1em")
     .style("text-anchor", "middle")
     .text("Population Density");
-        });
     
 
 // Set SVG dimensions & margins
@@ -270,13 +258,12 @@ const svgHeight = 1000;
 const margin = {top: 20, right: 20, bottom: 40, left: 100}; 
 
 // Create SVG  
-const svg2 = d3.select("body")
-  .append("svg")
-    .attr("width", svgWidth)  
-    .attr("height", svgHeight);
+let svg2=d3.select("#interState");
 
 // Data processing
-let alaData = aqiData.filter(d => d.State === "Alabama");
+function interStateData(x){
+svg2.selectAll("*").remove();
+let alaData = aqiData.filter(d => d.State === x);
 console.log(alaData);
 let counties = [...new Set(alaData.map(d => d.County))];
 
@@ -297,10 +284,8 @@ let xScale1 = d3.scaleBand()
     .range([margin.left, svgWidth - margin.right])
     .padding(0.1);
 
-//let data= ;
 // Assuming your data variable contains all the AQI data for different counties
 let maxDays = d3.max(alaData, d => +d['Days with AQI']);
-console.log(maxDays);
 
 let yScale1 = d3.scaleLinear()
     .domain([0, maxDays]) 
@@ -326,19 +311,23 @@ svg2.selectAll("g")
     return colors[i];
   });
 
+
 // X & Y axes
 let xAxis = d3.axisBottom(xScale1);
 let yAxis = d3.axisLeft(yScale1)  
 
-svg2.append("g")
+let xaxis= svg2.append("g")
     .attr("transform", "translate(0," + (svgHeight - margin.bottom) + ")")
     .call(xAxis);
 
+xaxis.selectAll("text")
+    .style("text-anchor", "end")
+    .attr("transform", "rotate(-45)");
 svg2.append("g")
-    .attr("transform", "translate(" + margin.left + ",0)") 
+    .attr("transform", "translate(" + margin.left + ",0)")
     .call(yAxis);  
 
-//Creating the legend for the bar Chart
+    
 // Define metrics and their corresponding colors
 const metricColors = {
   "Days with AQI": "steelblue",
@@ -379,6 +368,7 @@ Object.entries(metricColors).forEach(([metric, color]) => {
   legendOffset += legendSpacing;
 });
 
+
 // Pie chart data
 let pieMetrics = ["Days CO", "Days NO2", "Days Ozone", "Days PM2.5", "Days PM10"];  
 
@@ -417,7 +407,6 @@ arcs.append("path")
 arcs.append("text")
     .attr("transform", d => `translate(${arc.centroid(d)})`)
     .attr("dy", "0.35em")
-    .text(d => d.data.metric)
     .style("text-anchor", "middle");
 
 // Add title
@@ -451,6 +440,7 @@ legend1.append("text")
     .style("font-size", "12px")
     .attr("alignment-baseline", "middle");
 
-
+}
+       })
     })
 });
