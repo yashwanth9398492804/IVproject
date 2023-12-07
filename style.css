@@ -12,3 +12,13 @@
     padding-left: 7cm;
 
   }
+  .state-textarea {
+    font-size: 10px;
+    padding: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
+
+  }
+  

@@ -6,12 +6,10 @@ const projection = d3.geoAlbersUsa()
   .translate([width / 2, height / 2]);
    
 let svg = d3.select("#map") 
-  .attr("width", width) 
-  .attr("height", height);
-
+ 
 let svg1 = d3.select("#scatterplot") 
-  .attr("width", 1200) 
-  .attr("height", height);
+
+let svg2=d3.select("#interState");
 
 const path = d3.geoPath()
   .projection(projection);
@@ -191,19 +189,19 @@ console.log(filteredStateMedians)
 
 // Calculate total height needed based on the number of lines to display
 const numLines = 3; // Adjust as per your content
-const lineHeight = 20; // Adjust line height as needed
+const lineHeight = 25; // Adjust line height as needed
 const totalHeight = numLines * lineHeight;
 
 // Creating a textarea with adjusted height
 const textarea = svg1.append("foreignObject")
-    .attr("x", scatterMargin.left + scatterWidth + 10) // Adjust positioning as needed
+    .attr("x", 400) // Adjust positioning as needed
     .attr("y", scatterMargin.top)
     .attr("width", 200)
     .attr("height", totalHeight) // Set the total height
     .append("xhtml:textarea")
     .attr("class", "state-textarea")
-    .style("font-size", "10px")
-    .style("padding", "25px")
+    .style("font-size", "12px")
+    .style("padding", "12px")
     .attr("readonly", true); // Make it read-only initially
 
 // Adding circles to the scatterplot
@@ -257,14 +255,11 @@ const svgWidth = 1200;
 const svgHeight = 1000;
 const margin = {top: 20, right: 20, bottom: 40, left: 100}; 
 
-// Create SVG  
-let svg2=d3.select("#interState");
-
 // Data processing
 function interStateData(x){
 svg2.selectAll("*").remove();
 let alaData = aqiData.filter(d => d.State === x);
-console.log(alaData);
+
 let counties = [...new Set(alaData.map(d => d.County))];
 
 let metrics = [
