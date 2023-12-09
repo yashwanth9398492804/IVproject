@@ -11,6 +11,7 @@ let svg1 = d3.select("#scatterplot")
 
 let svg2=d3.select("#interState");
 
+let svg3=d3.select("#piechart");
 const path = d3.geoPath()
   .projection(projection);
 
@@ -117,7 +118,7 @@ legend.selectAll(".legend-rect")
 
 svg.selectAll('path')
     .on("click", function(d) {
-    console.log(d.srcElement.__data__.properties.NAME);
+
    //d3.select('#interState').remove();
         let r=d.srcElement.__data__.properties.NAME;
         interStateData(r);
@@ -251,13 +252,15 @@ svg1.append("text")
     
 
 // Set SVG dimensions & margins
-const svgWidth = 1200;
-const svgHeight = 1000;
+const svgWidth = 1250;
+const svgHeight = 550;
 const margin = {top: 20, right: 20, bottom: 40, left: 100}; 
 
 // Data processing
 function interStateData(x){
 svg2.selectAll("*").remove();
+svg3.selectAll("*").remove();
+document.getElementById("nametag").innerHTML=x;
 let alaData = aqiData.filter(d => d.State === x);
 
 let counties = [...new Set(alaData.map(d => d.County))];
@@ -385,7 +388,7 @@ let arc = d3.arc()
     .innerRadius(0)
     .outerRadius(radius);
 
-    let pieGroup = svg2.append("g")
+    let pieGroup = svg3.append("g")
     .attr("transform", "translate(550, 130)");
 
 let arcs = pieGroup.selectAll("arc")
@@ -405,7 +408,7 @@ arcs.append("text")
     .style("text-anchor", "middle");
 
 // Add title
-svg2.append("text")
+svg3.append("text")
     .attr("x", 550)
     .attr("y", 20)
     .text("Days by Pollutant")
@@ -414,7 +417,7 @@ svg2.append("text")
     .style("font-weight", "bold");
 
 // Create legend
-let legend1 = svg2.append("g")
+let legend1 = svg3.append("g")
     .attr("transform", "translate(690, 80)")
     .selectAll(".legend")
     .data(pieData)
