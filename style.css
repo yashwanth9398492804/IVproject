@@ -2,16 +2,14 @@
     width: 900px;
     height: 500px;
     border: 1px solid black; 
+    display: block;
+    margin: auto;
   }
   
   svg {
     background-color: lightgrey;
   }
-  h1{
-    
-    padding-left: 7cm;
-
-  }
+ 
   .state-textarea {
     font-size: 10px;
     padding: 20px;
@@ -21,4 +19,32 @@
     width: 200px;
 
   }
+ 
   
+  #charts {
+    display: grid;  
+      grid-template-columns: 75% 25%;
+      grid-template-areas: 
+        "left right";  
+      height: 100vh;
+    
+
+  }
+  
+  #scatterplot {
+    flex: 1;   
+  } 
+  
+  #ranking-table {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  #state{
+    display: none;
+  }
+  #piechart{
+    display: block;
+    margin: auto;
+  }
+

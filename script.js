@@ -115,11 +115,16 @@ legend.selectAll(".legend-rect")
 
 
 //Adding onclick functionality
-
 svg.selectAll('path')
     .on("click", function(d) {
+          // Hide charts
+document.getElementById("remote").style.display="none";
+  d3.select("#charts")
+  .style("display", "none");
 
-   //d3.select('#interState').remove();
+// Show interState 
+d3.select("#state")
+  .style("display", "block");
         let r=d.srcElement.__data__.properties.NAME;
         interStateData(r);
                 });
@@ -133,7 +138,7 @@ const sortedStates = statesJson.features.slice().sort((a, b) => {
 });
 console.log(sortedStates);
 // Create a table for state ranking based on median AQI
-const table = d3.select("body")
+const table = d3.select("#ranking-table")
     .append("table")
     .attr("id", "ranking-table");
 
@@ -258,7 +263,8 @@ const margin = {top: 20, right: 20, bottom: 40, left: 100};
 
 // Data processing
 function interStateData(x){
-svg2.selectAll("*").remove();
+
+    svg2.selectAll("*").remove();
 svg3.selectAll("*").remove();
 document.getElementById("nametag").innerHTML=x;
 let alaData = aqiData.filter(d => d.State === x);
@@ -389,7 +395,7 @@ let arc = d3.arc()
     .outerRadius(radius);
 
     let pieGroup = svg3.append("g")
-    .attr("transform", "translate(550, 130)");
+    .attr("transform", "translate(150, 150)");
 
 let arcs = pieGroup.selectAll("arc")
     .data(pie(pieData))
@@ -409,16 +415,16 @@ arcs.append("text")
 
 // Add title
 svg3.append("text")
-    .attr("x", 550)
+    .attr("x", 170)
     .attr("y", 20)
     .text("Days by Pollutant")
-    .style("font-size", "16px")
+    .style("font-size", "20px")
     .style("text-anchor", "middle")
     .style("font-weight", "bold");
 
 // Create legend
 let legend1 = svg3.append("g")
-    .attr("transform", "translate(690, 80)")
+    .attr("transform", "translate(280, 100)")
     .selectAll(".legend")
     .data(pieData)
     .enter().append("g")
